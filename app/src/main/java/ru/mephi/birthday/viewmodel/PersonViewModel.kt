@@ -1,9 +1,9 @@
 package ru.mephi.birthday
 
-import android.widget.Toast
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import ru.mephi.birthday.database.Person
+import ru.mephi.birthday.repository.Repository
 
 class PersonViewModel(private val repository: Repository) : ViewModel() {
 
