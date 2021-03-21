@@ -1,4 +1,4 @@
-package ru.mephi.birthday
+package ru.mephi.birthday.context
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -20,10 +20,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.*
-import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -36,9 +34,9 @@ import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import org.joda.time.Days
+import ru.mephi.birthday.PersonViewModel
+import ru.mephi.birthday.PersonViewModelFactory
+import ru.mephi.birthday.R
 import ru.mephi.birthday.adapters.PersonListAdapter
 import ru.mephi.birthday.database.Person
 
@@ -146,7 +144,7 @@ class MainFragment : Fragment() {
             dialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
         val listView: ListView = dialog.findViewById(R.id.add_list_variants)
-        val arrayAdapter = ToolListAdapter(requireContext(),R.layout.add_item_dialog_layout,list)
+        val arrayAdapter = ToolListAdapter(requireContext(), R.layout.add_item_dialog_layout,list)
         listView.adapter = arrayAdapter
         listView.setOnItemClickListener { adapterView, view, which,
                                           l ->

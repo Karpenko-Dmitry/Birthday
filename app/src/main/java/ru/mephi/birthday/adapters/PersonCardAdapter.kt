@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.joda.time.Days
 import org.joda.time.Instant
-import ru.mephi.birthday.MainFragmentDirections
 import ru.mephi.birthday.R
+import ru.mephi.birthday.context.MainFragmentDirections
 import ru.mephi.birthday.database.Person
 import java.util.*
 

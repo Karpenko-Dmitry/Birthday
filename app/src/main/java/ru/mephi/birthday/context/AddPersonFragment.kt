@@ -1,22 +1,22 @@
-package ru.mephi.birthday
+package ru.mephi.birthday.context
 
 import android.content.Context
-import android.icu.util.LocaleData
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import ru.mephi.birthday.PersonViewModel
+import ru.mephi.birthday.PersonViewModelFactory
+import ru.mephi.birthday.R
 import ru.mephi.birthday.database.Person
 import java.text.SimpleDateFormat
 import java.util.*

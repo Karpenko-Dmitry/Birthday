@@ -1,4 +1,4 @@
-package ru.mephi.birthday
+package ru.mephi.birthday.repository
 
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.flow.Flow
