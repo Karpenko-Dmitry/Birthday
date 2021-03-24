@@ -2,6 +2,7 @@ package ru.mephi.birthday.context
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -12,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.app.AlarmManagerCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -22,6 +24,9 @@ import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.*
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.bumptech.glide.Glide
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -39,6 +44,7 @@ import ru.mephi.birthday.PersonViewModelFactory
 import ru.mephi.birthday.R
 import ru.mephi.birthday.adapters.PersonListAdapter
 import ru.mephi.birthday.database.Person
+import java.util.concurrent.TimeUnit
 
 
 class MainFragment : Fragment() {
@@ -60,6 +66,8 @@ class MainFragment : Fragment() {
         super.onCreate(savedInstanceState)
         personViewModel.people.observe(this, Observer { people -> people?.let { adapter.submitList(it)}})
     }
+
+
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,

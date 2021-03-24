@@ -13,6 +13,9 @@ interface PersonDao {
     @Query("SELECT * FROM person ORDER BY lastName")
     fun getPersonByAlphabetOrder(): Flow<List<Person>>
 
+    @Query("SELECT * FROM person ORDER BY lastName")
+    fun getPersonByAlphabetOrderList(): List<Person>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(person: Person) : Long
 

@@ -12,4 +12,8 @@ class MyApplication : Application() {
     val database by lazy { AppDatabase.getAppDatabase(this,appScope)}
     val repository by lazy { Repository(database.personDao()) }
 
+    companion object {
+        val prefNotification = "notification"
+    }
+
 }

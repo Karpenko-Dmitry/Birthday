@@ -8,12 +8,10 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.joda.time.Days
-import org.joda.time.Instant
 import ru.mephi.birthday.R
 import ru.mephi.birthday.context.MainFragmentDirections
 import ru.mephi.birthday.database.Person
-import java.util.*
+import ru.mephi.birthday.repository.Repository
 
 @Suppress("DEPRECATION")
 class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHolder>(PersonComparator()) {
@@ -36,10 +34,10 @@ class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHold
         fun bind(person: Person) {
             id = person.personId
             name.text = person.lastName + " " + person.firstName
-            birthday.text = getTimeForBirthday(person.birthday)
+            birthday.text = Repository.getTimeForBirthdayString(person.birthday)
         }
 
-        private fun getTimeForBirthday(birthday : Long) : String {
+        /*private fun getTimeForBirthday(birthday : Long) : String {
             val curMilliSec= System.currentTimeMillis()
             val birthCalendar = GregorianCalendar()
             birthCalendar.time = Date(birthday)
@@ -52,7 +50,7 @@ class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHold
           return Days.daysBetween(Instant(nowdayCalendar.time),
                 Instant(birthCalendar.time)).days.toString() + " days"
 
-        }
+        }*/
 
         companion object {
             fun create(parent: ViewGroup): PersonViewHolder {
