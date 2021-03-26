@@ -12,10 +12,10 @@ import java.util.concurrent.TimeUnit
 class StartupReceiver() : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i("Notification1", "onReceive")
+        Log.i("BirthdayNotification", "onReceive")
         val notificationWorkRequest: OneTimeWorkRequest =
                 OneTimeWorkRequestBuilder<NotificationWorker>().build()
-        val birthdaySearchWorkRequest : PeriodicWorkRequest = PeriodicWorkRequestBuilder<BirthdayWorker>(1,TimeUnit.HOURS).build()
+        val birthdaySearchWorkRequest : PeriodicWorkRequest = PeriodicWorkRequestBuilder<BirthdayWorker>(15,TimeUnit.MINUTES).build()
         WorkManager.getInstance(context!!).beginUniqueWork("notification",
                                 ExistingWorkPolicy.REPLACE,notificationWorkRequest).enqueue()
         WorkManager.getInstance(context!!).enqueue(birthdaySearchWorkRequest)

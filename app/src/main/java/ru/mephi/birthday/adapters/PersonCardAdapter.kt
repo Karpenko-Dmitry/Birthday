@@ -29,11 +29,11 @@ class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHold
 
         val name: TextView  = itemView.findViewById(R.id.person_name)
         val birthday: TextView = itemView.findViewById(R.id.person_birthday)
-        var id :Long = 0
+        var id  = 0
 
         fun bind(person: Person) {
             id = person.personId
-            name.text = person.lastName + " " + person.firstName
+            name.text = person.nickName
             birthday.text = Repository.getTimeForBirthdayString(person.birthday)
         }
 

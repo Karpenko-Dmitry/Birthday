@@ -157,7 +157,7 @@ class MainFragment : Fragment() {
         listView.setOnItemClickListener { adapterView, view, which,
                                           l ->
             when (which) {
-                0 -> navController.navigate(MainFragmentDirections.actionAddPerson())
+                0 -> navController.navigate(MainFragmentDirections.actionAddPerson(-1))
                 2 -> VK.login(requireActivity(),arrayListOf(VKScope.WALL, VKScope.FRIENDS))
                 else -> Toast.makeText(requireContext(),"${list[which].name} was clicked",Toast.LENGTH_SHORT).show()
             }

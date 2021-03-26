@@ -23,9 +23,8 @@ import java.util.*
 
 class AddPersonFragment : Fragment() {
 
-    private var id : Long = -2
-    private lateinit var firstName : EditText
-    private lateinit var lastName : EditText
+    private var personId  = -2
+    private lateinit var nickName : EditText
     private lateinit var button : Button
     private var birthday : Long? = null
     private var person : Person? = null
@@ -47,14 +46,15 @@ class AddPersonFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val args : AddPersonFragmentArgs by navArgs()
-        id = args.argPersonId
-        if (id < 0) {
+        personId = args.argPersonId
+        if (personId < 0) {
             state = State.INSERT
         } else {
             state = State.UPDATE
         }
-        personViewModel.getPersonById(id)
+        personViewModel.getPersonById(personId)
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -73,8 +73,7 @@ class AddPersonFragment : Fragment() {
                 else -> false
             }
         }
-        lastName  = view.findViewById(R.id.lastname)
-        firstName = view.findViewById(R.id.firstname)
+        nickName  = view.findViewById(R.id.nickname)
         val okButton : FloatingActionButton = view.findViewById(R.id.floating_action_button)
         personViewModel.person.observe(viewLifecycleOwner, Observer {prs -> updateUI(prs)})
         val datePicker = datePickerBuilder.build()
@@ -95,8 +94,7 @@ class AddPersonFragment : Fragment() {
     }
 
     private fun updateUI(person: Person?) {
-        firstName.setText(person?.firstName)
-        lastName.setText(person?.lastName)
+        nickName.setText(person?.nickName)
         birthday = person?.birthday
         datePickerBuilder.setSelection(person?.birthday)
         button.text = getStringDateByLong(person?.birthday)
@@ -118,11 +116,10 @@ class AddPersonFragment : Fragment() {
     private fun confirmChanging() {
         if (person != null ) {
             person!!.birthday = birthday!!
-            person!!.lastName = lastName.text.toString()
-            person!!.firstName = firstName.text.toString()
+            person!!.nickName = nickName.text.toString().trim()
             personViewModel.update(person!!)
         } else {
-            person = Person(firstName.text.toString(),lastName.text.toString(),birthday!!)
+            person = Person(nickName.text.toString(),birthday!!)
             personViewModel.insert(person!!)
         }
     }

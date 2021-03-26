@@ -24,7 +24,6 @@
             app:destination="@id/mainFragment" />
         <argument
             android:name="argPersonId"
-            app:argType="long"
-            android:defaultValue="-1L" />
+            app:argType="integer" />
     </fragment>
 </navigation>

@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.Flow
 interface PersonDao {
 
     @Query("SELECT * FROM person WHERE personId = :id")
-    suspend fun getById(id : Long) : Person
+    suspend fun getById(id : Int) : Person
 
-    @Query("SELECT * FROM person ORDER BY lastName")
+    @Query("SELECT * FROM person ORDER BY nickName")
     fun getPersonByAlphabetOrder(): Flow<List<Person>>
 
-    @Query("SELECT * FROM person ORDER BY lastName")
+    @Query("SELECT * FROM person ORDER BY nickName")
     fun getPersonByAlphabetOrderList(): List<Person>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

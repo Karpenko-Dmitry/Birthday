@@ -8,12 +8,11 @@ import java.util.*
 @Entity()
  data class Person (
         @PrimaryKey(autoGenerate = true)
-        val personId : Long,
-        var firstName : String,
-        var lastName : String,
+        val personId : Int,
+        var nickName : String,
         var birthday : Long
          )  {
-        constructor(firstName: String, lastName: String, birthday : Long) : this(0,firstName, lastName, birthday)
+        constructor(nickName: String, birthday : Long) : this(0,nickName, birthday)
 }
 
 

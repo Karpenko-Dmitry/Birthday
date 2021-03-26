@@ -14,8 +14,7 @@
     <string name="notification">Notification</string>
     <string name="select_friends">Select all friends</string>
     <string name="ok">Ok</string>
-    <string name="lastname">last name</string>
-    <string name="firstname">first name</string>
+    <string name="nickname">Enter a name</string>
     <string name="delete">Delete</string>
     <string name="facebook_app_id">481531966308237</string>
     <integer name="com_vk_sdk_AppId">7772091</integer>

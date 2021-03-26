@@ -25,7 +25,7 @@ class PersonViewModel(private val repository: Repository) : ViewModel() {
             repository.delete(person)}
     }
 
-    fun getPersonById(id: Long) = viewModelScope.launch {
+    fun getPersonById(id: Int) = viewModelScope.launch {
             val prs = repository.getPerson(id)
             person.postValue(prs)
         }
