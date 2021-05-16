@@ -24,6 +24,29 @@
             app:destination="@id/mainFragment" />
         <argument
             android:name="argPersonId"
-            app:argType="integer" />
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
+    <fragment
+        android:id="@+id/notificationSettingFragment"
+        android:name="ru.mephi.birthday.context.NotificationSettingFragment"
+        android:label="fragment_notification_setting"
+        tools:layout="@layout/fragment_notification_setting" />
+    <action
+        android:id="@+id/actionNotificationSettings"
+        app:destination="@id/notificationSettingFragment" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ru.mephi.birthday.context.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/accountFragment"
+        android:name="ru.mephi.birthday.context.AccountFragment"
+        android:label="fragment_account"
+        tools:layout="@layout/fragment_account" />
+    <action
+        android:id="@+id/to_accountFragment"
+        app:destination="@id/accountFragment" />
 </navigation>

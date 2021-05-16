@@ -12,12 +12,13 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/person_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="icon"
             android:src="@drawable/ic_user"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></ImageView>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/person_name"
@@ -27,28 +28,27 @@
             android:layout_marginTop="20dp"
             android:textColor="@color/purple_200"
             android:textSize="25sp"
-            app:layout_constraintStart_toEndOf="@+id/imageView3"
+            app:layout_constraintStart_toEndOf="@+id/person_icon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Петр Петров"></TextView>
+            tools:text="Петр Петров"/>
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="До дня рождения осталось: "
+            android:text="@string/when_birthday"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="@+id/person_name"
-            app:layout_constraintTop_toBottomOf="@+id/person_name"></TextView>
+            app:layout_constraintTop_toBottomOf="@+id/person_name"/>
 
         <TextView
             android:id="@+id/person_birthday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
-            android:text="105 дней 21 час 45 минут"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@+id/textView3"
-            app:layout_constraintTop_toBottomOf="@+id/textView3"></TextView>
+            app:layout_constraintTop_toBottomOf="@+id/textView3"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

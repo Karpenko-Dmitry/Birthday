@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import ru.mephi.birthday.database.Person
 import ru.mephi.birthday.repository.Repository
+import java.util.*
 
 class PersonViewModel(private val repository: Repository) : ViewModel() {
 
@@ -25,11 +26,10 @@ class PersonViewModel(private val repository: Repository) : ViewModel() {
             repository.delete(person)}
     }
 
-    fun getPersonById(id: Int) = viewModelScope.launch {
-            val prs = repository.getPerson(id)
+    fun getPersonById(uuid: UUID) = viewModelScope.launch {
+            val prs = repository.getPerson(uuid)
             person.postValue(prs)
-        }
-
+    }
 }
 
 class PersonViewModelFactory (private val repository: Repository) : ViewModelProvider.Factory {

@@ -1,14 +1,18 @@
 package ru.mephi.birthday.adapters
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.mephi.birthday.R
+import ru.mephi.birthday.context.AddPersonFragment.*
 import ru.mephi.birthday.context.MainFragmentDirections
 import ru.mephi.birthday.database.Person
 import ru.mephi.birthday.repository.Repository
@@ -29,28 +33,23 @@ class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHold
 
         val name: TextView  = itemView.findViewById(R.id.person_name)
         val birthday: TextView = itemView.findViewById(R.id.person_birthday)
-        var id  = 0
+        val icon: ImageView = itemView.findViewById(R.id.person_icon)
+        var id : String = ""
 
         fun bind(person: Person) {
-            id = person.personId
+            id = person.uuid.toString()
             name.text = person.nickName
-            birthday.text = Repository.getTimeForBirthdayString(person.birthday)
-        }
-
-        /*private fun getTimeForBirthday(birthday : Long) : String {
-            val curMilliSec= System.currentTimeMillis()
-            val birthCalendar = GregorianCalendar()
-            birthCalendar.time = Date(birthday)
-            val nowdayCalendar = GregorianCalendar()
-            nowdayCalendar.time = Date(curMilliSec)
-            birthCalendar.add(Calendar.YEAR,nowdayCalendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR))
-            if (birthCalendar.before(nowdayCalendar)) {
-                birthCalendar.add(Calendar.YEAR,1)
+            birthday.text = Repository.getTimeForBirthdayString(DateWithNullYear(person.day,person.month,person.year))
+            val uriStr = person.uri
+            if (uriStr != null) {
+                Glide.with(itemView.context).
+                    load(Uri.parse(uriStr)).
+                    centerCrop().
+                    placeholder(R.drawable.ic_user).
+                    error(R.drawable.ic_user).
+                    into(icon)
             }
-          return Days.daysBetween(Instant(nowdayCalendar.time),
-                Instant(birthCalendar.time)).days.toString() + " days"
-
-        }*/
+        }
 
         companion object {
             fun create(parent: ViewGroup): PersonViewHolder {
