@@ -1,6 +1,7 @@
 package ru.mephi.birthday.context
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,6 +14,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.work.*
 import com.bumptech.glide.Glide
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -36,8 +42,10 @@ class AccountFragment : Fragment() {
     private lateinit var userName: TextView
     private lateinit var userMail: TextView
     private lateinit var account: Button
+    private lateinit var loginButton : LoginButton
     private var hasAuth: Boolean = false
     private var currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+    private val callbackManager = CallbackManager.Factory.create()
 
     override fun onStart() {
         super.onStart()
@@ -50,10 +58,12 @@ class AccountFragment : Fragment() {
             hasAuth = true
             account.setText(R.string.sign_out)
             if(!user.uid.equals(currentUser?.uid)) {
-                currentUser = user
                 val rep = (requireActivity().application as MyApplication).repository
                 GlobalScope.launch(Dispatchers.IO) {
-                    rep.delete()
+                    if (currentUser != null) {
+                        rep.delete()
+                    }
+                    currentUser = user
                     val synchronizationWorkRequest : OneTimeWorkRequest =
                         OneTimeWorkRequestBuilder<SynchronizationWorker>().build()
                     WorkManager.getInstance(requireContext()).beginUniqueWork("synchronization",
@@ -82,12 +92,29 @@ class AccountFragment : Fragment() {
                 account.setText(R.string.sign_in)
                 cleanUI()
                 AuthUI.getInstance().signOut(requireContext())
+                currentUser = null
             } else {
                 hasAuth = true
                 account.setText(R.string.sign_out)
                 auth()
             }
         }
+        loginButton = view.findViewById(R.id.facebook_login_button)
+        loginButton.setPermissions("user_friends")
+        loginButton.setFragment(this)
+        loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
+            override fun onSuccess(loginResult: LoginResult?) {
+                Toast.makeText(requireContext(),"onSuccess",Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onCancel() {
+                Toast.makeText(requireContext(),"onCancel()",Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onError(exception: FacebookException) {
+                Toast.makeText(requireContext(),"onError",Toast.LENGTH_SHORT).show()
+            }
+        })
         return view
     }
 
@@ -124,6 +151,7 @@ class AccountFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager.onActivityResult(requestCode,resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {

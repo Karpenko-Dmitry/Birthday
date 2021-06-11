@@ -18,7 +18,7 @@ import ru.mephi.birthday.workers.SynchronizationWorker
 class MyApplication : Application() {
 
     val appScope = CoroutineScope(SupervisorJob())
-    val database by lazy { AppDatabase.getAppDatabase(this,appScope)}
+    val database by lazy { AppDatabase.getAppDatabase(this)}
     val repository by lazy { Repository(database.personDao(),database.deletePersonDao()) }
 
     companion object {

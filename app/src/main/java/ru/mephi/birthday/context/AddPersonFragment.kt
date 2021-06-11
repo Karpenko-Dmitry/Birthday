@@ -64,7 +64,6 @@ class AddPersonFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val args: AddPersonFragmentArgs by navArgs()
-        val id = args.argPersonId
         if (args.argPersonId == null) {
             state = State.INSERT
         } else {
@@ -150,14 +149,29 @@ class AddPersonFragment : Fragment() {
         nickName.setText(prs?.nickName)
         //val birthday = prs?.birthday
         val uriStr = prs?.uri
-        if (uriStr != null) {
+        /*if (uriStr != null) {
             uriIcon = Uri.parse(uriStr)
             if (uriIcon != null) {
                 Glide.with(requireContext()).load(uriIcon).centerCrop()
                     .placeholder(R.drawable.ic_user).error(R.drawable.ic_user).into(icon)
             }
+        }*/
+        if (person?.facebookId != null) {
+            Glide.with(requireContext()).
+            load("https://graph.facebook.com/${person?.facebookId}/picture?type=large").
+            centerCrop().
+            placeholder(R.drawable.ic_user).
+            error(R.drawable.ic_user).
+            into(icon)
+        } else if (uriStr != null) {
+            Glide.with(requireContext()).
+            load(Uri.parse(uriStr)).
+            centerCrop().
+            placeholder(R.drawable.ic_user).
+            error(R.drawable.ic_user).
+            into(icon)
         }
-        if (prs?.day != null) {
+        if (prs?.day != null && prs.state != UserState.INVALID) {
             dayEditText.setText(prs.day.toString())
             monthSpinner.setSelection(prs.month!!.toInt())
             if (prs.year != null) {
@@ -221,7 +235,7 @@ class AddPersonFragment : Fragment() {
             person!!.state = UserState.NOT_SYNCHRONIZED
             personViewModel.update(person!!)
         } else {
-            person = Person(
+            person = Person(null,
                 nickName.text.toString(), birthday.day, birthday.month,
                 birthday.year, UserState.NOT_SYNCHRONIZED, uriIcon.toString()
             )

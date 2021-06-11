@@ -59,14 +59,16 @@ class SynchronizationWorker(val context: Context, params: WorkerParameters) :
             .addOnSuccessListener { result ->
                 GlobalScope.async(Dispatchers.IO) {
                     for (document in result) {
-                        if (rep.getPerson(UUID.fromString(document.id)) == null) {
+                        val uuid = UUID.fromString(document.id)
+                        if (rep.getPerson(uuid) == null) {
                             val name: String = document.getField("name")!!
                             val day: Int = document.getField("day")!!
                             val month: Int = document.getField("month")!!
                             val year: Int? = document.getField("year")
                             val uri: String? = document.getField("uri")
+                            val facebookId : String? = document.getField("facebookId")
                             val person = Person(
-                                name, day.toByte(), month.toByte(),
+                                uuid,facebookId,name, day.toByte(), month.toByte(),
                                 year?.toShort(), UserState.SYNCHRONIZED, uri
                             )
                             rep.insertToLocalDB(person)
@@ -84,10 +86,12 @@ class SynchronizationWorker(val context: Context, params: WorkerParameters) :
             val list = rep.getPersonWithoutSynchronization()
             for (person in list) {
                 val uuid = person.uuid
-                db.collection("Users")
-                    .document(user.uid).collection("birthdays")
-                    .document(uuid.toString()).set(getPersonHashMap(person), SetOptions.merge())
-                    .addOnCompleteListener { rep.updateState(uuid, UserState.SYNCHRONIZED) }
+                if (person.state != UserState.INVALID) {
+                    db.collection("Users")
+                        .document(user.uid).collection("birthdays")
+                        .document(uuid.toString()).set(getPersonHashMap(person), SetOptions.merge())
+                        .addOnCompleteListener { rep.updateState(uuid, UserState.SYNCHRONIZED) }
+                }
             }
         }
     }
@@ -104,10 +108,10 @@ class SynchronizationWorker(val context: Context, params: WorkerParameters) :
         if (person.uri != null) {
             prs.put("uri", person.uri!!)
         }
+        if (person.facebookId != null) {
+            prs.put("facebookId", person.facebookId)
+        }
         return prs
     }
-
-
-
 
 }

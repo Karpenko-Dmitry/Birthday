@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 import ru.mephi.birthday.R
 
 
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if(MainFragment.READ_CONTACTS_GRANTED){
-            MainFragment.showContactsList(this)
+            MainFragment.showFriendList(this,MainFragment.loadContacts(this))
         }
         else{
             Toast.makeText(this, "Требуется установить разрешения", Toast.LENGTH_LONG).show();

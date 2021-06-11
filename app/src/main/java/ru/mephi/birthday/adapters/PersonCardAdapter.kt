@@ -15,6 +15,7 @@ import ru.mephi.birthday.R
 import ru.mephi.birthday.context.AddPersonFragment.*
 import ru.mephi.birthday.context.MainFragmentDirections
 import ru.mephi.birthday.database.Person
+import ru.mephi.birthday.database.UserState
 import ru.mephi.birthday.repository.Repository
 
 @Suppress("DEPRECATION")
@@ -39,9 +40,21 @@ class PersonListAdapter() : ListAdapter<Person, PersonListAdapter.PersonViewHold
         fun bind(person: Person) {
             id = person.uuid.toString()
             name.text = person.nickName
-            birthday.text = Repository.getTimeForBirthdayString(DateWithNullYear(person.day,person.month,person.year))
+            if (person.state == UserState.INVALID) {
+                val res = itemView.resources
+                birthday.text = res.getString(R.string.invalid_birthday)
+            } else {
+                birthday.text = Repository.getTimeForBirthdayString(DateWithNullYear(person.day,person.month,person.year))
+            }
             val uriStr = person.uri
-            if (uriStr != null) {
+            if (person.facebookId != null) {
+                Glide.with(itemView.context).
+                    load("https://graph.facebook.com/${person.facebookId}/picture?type=large").
+                    centerCrop().
+                    placeholder(R.drawable.ic_user).
+                    error(R.drawable.ic_user).
+                    into(icon)
+            } else if (uriStr != null) {
                 Glide.with(itemView.context).
                     load(Uri.parse(uriStr)).
                     centerCrop().

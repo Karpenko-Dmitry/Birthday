@@ -10,6 +10,7 @@ import java.util.*
  data class Person (
         @PrimaryKey()
         val uuid: UUID,
+        val facebookId: String?,
         var nickName : String,
         var day : Byte,
         var month : Byte,
@@ -18,8 +19,11 @@ import java.util.*
         var uri : String?
         )  {
 
-        constructor(nickName: String, day : Byte,month : Byte, year : Short?,state: UserState,uri : String?) :
-                this( UUID.randomUUID(),nickName, day,month, year, state, uri)
+       constructor(facebookId: String?,nickName: String, day : Byte,month : Byte, year : Short?,state: UserState,uri : String?) :
+                this(UUID.randomUUID(),facebookId,nickName, day,month, year, state, uri)
+
+       /*constructor(uuid : UUID, facebookId: String?, nickName: String, day : Byte,month : Byte, year : Short?,state: UserState,uri : String?) :
+               this( uuid,nickName, day,month, year, state, uri)*/
 }
 
 

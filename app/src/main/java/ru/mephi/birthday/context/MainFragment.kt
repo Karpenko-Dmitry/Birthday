@@ -11,10 +11,10 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,7 +31,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.firebase.ui.auth.data.model.PhoneNumber
+import com.facebook.*
+import com.facebook.AccessToken
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -44,7 +47,8 @@ import com.google.firebase.ktx.Firebase
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
-import com.vk.api.sdk.auth.VKScope
+import org.json.JSONArray
+import org.json.JSONException
 import ru.mephi.birthday.PersonViewModel
 import ru.mephi.birthday.PersonViewModelFactory
 import ru.mephi.birthday.R
@@ -52,6 +56,7 @@ import ru.mephi.birthday.adapters.AddListFriendAdapter
 import ru.mephi.birthday.adapters.NewPerson
 import ru.mephi.birthday.adapters.PersonListAdapter
 import ru.mephi.birthday.database.Person
+import ru.mephi.birthday.database.UserState
 
 
 class MainFragment : Fragment() {
@@ -62,21 +67,32 @@ class MainFragment : Fragment() {
         var READ_CONTACTS_GRANTED = false
 
 
-        fun showContactsList(context: Context) {
+        fun showFriendList(context: Context, list : List<NewPerson>) {
             val dialog = Dialog(context, android.R.style.ThemeOverlay_Material_Light)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(R.layout.friend_list)
             if (dialog.getWindow() != null) {
                 dialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
             val recyclerView: RecyclerView = dialog.findViewById(R.id.recycler_view)
-            recyclerView.adapter = AddListFriendAdapter(loadContacts(context))
+            val adapter = AddListFriendAdapter(list)
+            recyclerView.adapter = adapter
             val button: FloatingActionButton = dialog.findViewById(R.id.floatingActionButton)
-            button.setOnClickListener { dialog.hide() }
+            button.setOnClickListener {
+                val list = adapter.dataset
+                val rep = (context.applicationContext as MyApplication).repository
+                for (el in list) {
+                    if (el.add) {
+                        val person  = Person(el.id,el.name,1,0,null,UserState.INVALID,null)
+                        rep.insert(person)
+                    }
+                }
+                dialog.hide()
+            }
             dialog.show()
         }
 
-        private fun loadContacts(context: Context): List<NewPerson> {
+        public fun loadContacts(context: Context): List<NewPerson> {
             val listPerson = ArrayList<NewPerson>()
             val cursor = context.contentResolver.query(
                 ContactsContract.Contacts.CONTENT_URI,
@@ -90,6 +106,8 @@ class MainFragment : Fragment() {
                     val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                     val name =
                         cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                    val isUser = cursor.getInt(cursor.getColumnIndex(ContactsContract.Data.IS_USER_PROFILE))
+
                     var phone: String? = null
                     var email: String? = null
                     if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
@@ -111,7 +129,7 @@ class MainFragment : Fragment() {
                             }
                             cur.close()
                         }
-                        listPerson.add(NewPerson(name, "", phone,email))
+                        listPerson.add(NewPerson(null,name,phone,true))
                     }
                 }
             }
@@ -124,6 +142,7 @@ class MainFragment : Fragment() {
     private lateinit var userIcon: ImageView
     private lateinit var userName: TextView
     private lateinit var userMail: TextView
+    private val callbackManager = CallbackManager.Factory.create()
 
     private var auth: FirebaseAuth = Firebase.auth
 
@@ -205,7 +224,7 @@ class MainFragment : Fragment() {
         userIcon = header.findViewById(R.id.imageView)
         userName = header.findViewById(R.id.textView)
         userMail = header.findViewById(R.id.textView2)
-        val fab = view.findViewById<FloatingActionButton>(R.id.floating_action_button)
+        val fab = view.findViewById<FloatingActionButton>(R.id.add_new_person)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         val layoutManager = LinearLayoutManager(activity)
@@ -232,13 +251,9 @@ class MainFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
             }
         })
-        val list = listOf<ToolsToAddPerson>(
-            ToolsToAddPerson(
-                R.drawable.ic_hand,
-                getString(R.string.by_hand)
-            ),
+        val list = listOf(
+            ToolsToAddPerson(R.drawable.ic_hand, getString(R.string.by_hand)),
             ToolsToAddPerson(R.drawable.ic_contact, getString(R.string.contacts)),
-            ToolsToAddPerson(R.drawable.ic_vk, getString(R.string.vk)),
             ToolsToAddPerson(R.drawable.ic_facebook, getString(R.string.facebook))
         )
         fab.setOnClickListener { showDialogAddFriends(list) }
@@ -250,6 +265,7 @@ class MainFragment : Fragment() {
 
     fun showDialogAddFriends(list: List<ToolsToAddPerson>) {
         val dialog = Dialog(requireContext())
+        dialog.setCanceledOnTouchOutside(true)
         dialog.setContentView(R.layout.add_dialog_list)
         if (dialog.getWindow() != null) {
             dialog.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -262,7 +278,11 @@ class MainFragment : Fragment() {
             when (which) {
                 0 -> navController.navigate(MainFragmentDirections.actionAddPerson())
                 1 -> showContacts()
-                2 -> VK.login(requireActivity(), arrayListOf(VKScope.WALL, VKScope.FRIENDS))
+                2 -> {
+                    dialog.hide()
+                    showSocialNetworkList()
+                }
+                //2 -> VK.login(requireActivity(), arrayListOf(VKScope.WALL, VKScope.FRIENDS))
                 else -> Toast.makeText(
                     requireContext(),
                     "${list[which].name} was clicked",
@@ -274,6 +294,114 @@ class MainFragment : Fragment() {
         dialog.show()
     }
 
+    private fun showSocialNetworkList() {
+        val accessToken = AccessToken.getCurrentAccessToken()
+        val isLoggedIn = accessToken != null && !accessToken.isExpired
+        if (isLoggedIn) {
+            /*GraphRequest(
+                accessToken,
+                "/{friend-list-id}",
+                null,
+                HttpMethod.GET
+            ) { response ->
+                Log.d("FacebookFriends","Array ${response.jsonArray}; Error: ${response.error.errorCode}")
+                Log.d("FacebookFriends","Permissions ${accessToken.permissions}")
+            }.executeAsync()*/
+            val graphReq = GraphRequest.newMyFriendsRequest(accessToken,object:GraphRequest.GraphJSONArrayCallback {
+                override fun onCompleted(objects: JSONArray?, response: GraphResponse?) {
+                    //Log.d("FacebookFriends","Array: $objects")
+                    val list = ArrayList<NewPerson>();
+                    if (objects != null) {
+                        for (i in 0..objects.length()-1) {
+                            val obj = objects.getJSONObject(i)
+                            list.add(NewPerson(obj.getString("id"),obj.getString("name")))
+                        }
+                    }
+                    showFriendList(requireContext(),list)
+                }
+            })
+            graphReq.executeAsync()
+        } else {
+            facebookLogin()
+        }
+    }
+
+    /*
+    //showFriendList(requireContext(),getFacebookFriends())
+            val graphRequest = GraphRequest.newMeRequest(
+                accessToken
+            ) { jsonObject, graphResponse ->
+                try {
+                    val jsonArrayFriends =
+                        jsonObject.getJSONObject("friendlist").getJSONArray("data")
+                    val friendlistObject = jsonArrayFriends.getJSONObject(0)
+                    val friendListID = friendlistObject.getString("id")
+                    myNewGraphReq(friendListID)
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+            val param = Bundle()
+            param.putString("fields", "friendlist")
+            graphRequest.parameters = param
+            graphRequest.executeAsync()
+
+     */
+
+    private fun myNewGraphReq(friendlistId: String) {
+        val graphPath = "/$friendlistId/members/"
+        val token = AccessToken.getCurrentAccessToken()
+        val request = GraphRequest(
+            token, graphPath, null, HttpMethod.GET
+        ) { graphResponse ->
+            val `object` = graphResponse.jsonObject
+            try {
+                val arrayOfUsersInFriendList = `object`.getJSONArray("data")
+                /* Do something with the user list */
+                /* ex: get first user in list, "name" */
+                val user = arrayOfUsersInFriendList.getJSONObject(0)
+                val usersName = user.getString("name")
+                Toast.makeText(requireContext(),"$usersName",Toast.LENGTH_SHORT).show()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        val param = Bundle()
+        param.putString("fields", "name")
+        request.parameters = param
+        request.executeAsync()
+    }
+
+    private fun getFacebookFriends() : List<NewPerson> {
+        return java.util.ArrayList()
+    }
+
+    private fun facebookLogin() {
+        val dialog = Dialog(requireContext())
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setContentView(R.layout.add_friend_social_net)
+        val loginButton: LoginButton = dialog.findViewById(R.id.facebook_login_button)
+        loginButton.setPermissions("user_friends")
+        loginButton.setFragment(this)
+        loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
+            override fun onSuccess(loginResult: LoginResult?) {
+                Toast.makeText(requireContext(),"onSuccess",Toast.LENGTH_SHORT).show()
+                dialog.hide()
+            }
+
+            override fun onCancel() {
+                Toast.makeText(requireContext(),"onCancel()",Toast.LENGTH_SHORT).show()
+                dialog.hide()
+            }
+
+            override fun onError(exception: FacebookException) {
+                Toast.makeText(requireContext(),"onError",Toast.LENGTH_SHORT).show()
+                dialog.hide()
+            }
+        })
+        dialog.show()
+    }
+
     private fun showContacts() {
         val context = requireContext()
         val hasReadContactsPermission = ContextCompat.checkSelfPermission(
@@ -282,8 +410,7 @@ class MainFragment : Fragment() {
         )
         if (hasReadContactsPermission == PackageManager.PERMISSION_GRANTED) {
             READ_CONTACTS_GRANTED = true;
-            showContactsList(context)
-            Toast.makeText(context, "Read contacts", Toast.LENGTH_LONG).show()
+            showFriendList(context, loadContacts(context))
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -309,8 +436,24 @@ class MainFragment : Fragment() {
         dialog.show()
     }
 
+    private fun facebookGetFriends(context: Context) {
+        FacebookSdk.sdkInitialize(context)
+        val callback = GraphRequest.Callback { res ->
+            Toast.makeText(context, "Facebook Callback",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error: ${res.error.errorCode}",Toast.LENGTH_LONG).show()
+        }
+        GraphRequest(
+            AccessToken.getCurrentAccessToken(),
+            "/{friend-list-id}",
+            null,
+            HttpMethod.GET,
+            callback
+        ).executeAsync()
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager.onActivityResult(requestCode,resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
         val callback = getVkCallback()
         if (!VK.onActivityResult(requestCode, resultCode, data, callback)) {

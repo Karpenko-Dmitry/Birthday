@@ -29,7 +29,7 @@ class Repository(private val personDao: PersonDao,private val deletePersonDao: D
         GlobalScope.async(Dispatchers.IO) {
             personDao.insert(person)
             val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
+            if (user != null && person.state != UserState.INVALID) {
                 setPersonToFirebase(person, user)
             }
         }
@@ -52,6 +52,9 @@ class Repository(private val personDao: PersonDao,private val deletePersonDao: D
         }
         if (person.uri != null) {
             prs.put("uri", person.uri!!)
+        }
+        if (person.facebookId != null) {
+            prs.put("facebookId", person.facebookId)
         }
         val uuid = person.uuid
         db.collection("Users").document(user.uid).collection("birthdays")
@@ -82,7 +85,7 @@ class Repository(private val personDao: PersonDao,private val deletePersonDao: D
         GlobalScope.async(Dispatchers.IO) {
             personDao.update(person)
             val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
+            if (user != null && person.state != UserState.INVALID) {
                 setPersonToFirebase(person, user)
             }
         }

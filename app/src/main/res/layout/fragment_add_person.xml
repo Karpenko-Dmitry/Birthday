@@ -36,6 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="24dp"
+                android:importantForAutofill="noExcludeDescendants"
                 android:hint="@string/nickname"
                 android:autofillHints="username"
                 android:maxLength="15"
